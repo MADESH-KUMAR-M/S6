@@ -1141,7 +1141,7 @@ const ChatAssistant = ({ user }: { user: UserData }) => {
         setMessages(msgs);
         if (msgs.length === 0) {
           // Initial greeting
-          addMessage('model', `Hi ${user.name}! I'm your SkillGap AI Advisor. How can I help you prepare for your next step as a ${user.target_role || 'professional'}?`);
+          addMessage('model', `Hi **${user.name}**! I'm your **SkillGap AI Advisor**. How can I help you prepare for your next step as a **${user.target_role || 'professional'}**?`);
         }
       });
       return () => unsubscribe();
@@ -1236,12 +1236,12 @@ const ChatAssistant = ({ user }: { user: UserData }) => {
                   )}
                 >
                   <div className={cn(
-                    "px-4 py-2.5 rounded-2xl text-sm leading-relaxed",
+                    "px-4 py-2.5 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap",
                     msg.role === 'user' 
                       ? "bg-indigo-600 text-white rounded-tr-none" 
-                      : "bg-zinc-100 text-zinc-900 rounded-tl-none"
+                      : "bg-zinc-100 text-zinc-900 rounded-tl-none prose prose-sm prose-zinc max-w-none prose-p:leading-relaxed prose-strong:text-zinc-900 prose-strong:font-black prose-ul:my-2 prose-li:my-0.5"
                   )}>
-                    {msg.content}
+                    <Markdown>{msg.content}</Markdown>
                   </div>
                   <span className="text-[10px] text-zinc-400 mt-1 px-1 font-medium italic">
                     {msg.timestamp ? (msg.timestamp as Timestamp).toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Just now'}

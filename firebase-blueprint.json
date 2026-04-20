@@ -1,0 +1,72 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "Stores user professional profile and career target data.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Auth UID" },
+        "name": { "type": "string", "description": "Display name" },
+        "email": { "type": "string", "description": "User email" },
+        "target_role": { "type": "string", "description": "Target job role" },
+        "career_stage": { "type": "string", "enum": ["Basic", "Intermediate", "Advanced"] },
+        "skills": { "type": "array", "items": { "type": "string" } },
+        "cached_analysis": { "type": "string", "description": "JSON string of latest AI analysis" },
+        "cached_analysis_hash": { "type": "string", "description": "Hash to detect profile changes" },
+        "updated_at": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "name", "email"]
+    },
+    "ProgressItem": {
+      "title": "Learning Progress",
+      "description": "Tracking completion status of recommended courses or projects.",
+      "type": "object",
+      "properties": {
+        "item_title": { "type": "string" },
+        "completed": { "type": "boolean" },
+        "updated_at": { "type": "string", "format": "date-time" }
+      },
+      "required": ["item_title", "completed"]
+    },
+    "SkillMastery": {
+      "title": "Skill Mastery",
+      "description": "Tracking proficiency levels for specific skills.",
+      "type": "object",
+      "properties": {
+        "skill_name": { "type": "string" },
+        "proficiency": { "type": "number" },
+        "updated_at": { "type": "string", "format": "date-time" }
+      },
+      "required": ["skill_name", "proficiency"]
+    },
+    "ChatMessage": {
+      "title": "Chat Message",
+      "description": "A single message in a conversation.",
+      "type": "object",
+      "properties": {
+        "role": { "type": "string", "enum": ["user", "model"] },
+        "content": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["role", "content", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Root user profile document."
+    },
+    "/users/{userId}/learning_path/{itemId}": {
+      "schema": "ProgressItem",
+      "description": "User's individual course progress."
+    },
+    "/users/{userId}/skill_mastery/{skillId}": {
+      "schema": "SkillMastery",
+      "description": "User's current mastery in various skills."
+    },
+    "/users/{userId}/chats/{chatId}/messages/{messageId}": {
+      "schema": "ChatMessage",
+      "description": "History of messages for a specific chat session."
+    }
+  }
+}

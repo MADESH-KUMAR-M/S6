@@ -1,0 +1,91 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper Functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 512;
+    }
+
+    // Validation Helpers
+    function isValidUser(data) {
+      return data.keys().hasAll(['id', 'name', 'email']) &&
+             data.id == request.auth.uid &&
+             data.name is string && data.name.size() <= 200 &&
+             data.email is string && data.email.size() <= 200 &&
+             (!('target_role' in data) || (data.target_role is string && data.target_role.size() <= 200)) &&
+             (!('career_stage' in data) || (data.career_stage in ['Basic', 'Intermediate', 'Advanced'])) &&
+             (!('skills' in data) || (data.skills is list && data.skills.size() <= 200)) &&
+             (!('cached_analysis' in data) || (data.cached_analysis is string && data.cached_analysis.size() <= 500000)) &&
+             (!('cached_analysis_hash' in data) || (data.cached_analysis_hash is string && data.cached_analysis_hash.size() <= 256)) &&
+             (!('updated_at' in data) || data.updated_at is timestamp);
+    }
+
+    function isValidProgress(data) {
+      return data.keys().hasAll(['item_title', 'completed']) &&
+             data.item_title is string &&
+             data.completed is bool &&
+             (!('updated_at' in data) || data.updated_at is timestamp);
+    }
+
+    function isValidSkillMastery(data) {
+      // Proficiency is typically 0-10 or 0-100 depending on implementation
+      return data.keys().hasAll(['skill_name', 'proficiency']) &&
+             data.skill_name is string &&
+             data.proficiency is number &&
+             (!('updated_at' in data) || data.updated_at is timestamp);
+    }
+
+    function isValidMessage(data) {
+      return data.keys().hasAll(['role', 'content', 'timestamp']) &&
+             data.role in ['user', 'model'] &&
+             data.content is string && data.content.size() <= 5000 &&
+             data.timestamp is timestamp;
+    }
+
+    // Collection Matches
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidUser(request.resource.data);
+      allow update: if isOwner(userId) && isValidUser(request.resource.data) &&
+                    request.resource.data.id == resource.data.id &&
+                    request.resource.data.email == resource.data.email;
+      
+      match /learning_path/{itemId} {
+        allow list: if isOwner(userId);
+        allow get: if isOwner(userId) && isValidId(itemId);
+        allow create, update: if isOwner(userId) && isValidId(itemId) && isValidProgress(request.resource.data);
+        allow delete: if isOwner(userId) && isValidId(itemId);
+      }
+
+      match /skill_mastery/{skillId} {
+        allow list: if isOwner(userId);
+        allow get: if isOwner(userId) && isValidId(skillId);
+        allow create, update: if isOwner(userId) && isValidId(skillId) && isValidSkillMastery(request.resource.data);
+        allow delete: if isOwner(userId) && isValidId(skillId);
+      }
+
+      match /chats/{chatId} {
+        allow read, write: if isOwner(userId) && isValidId(chatId);
+
+        match /messages/{messageId} {
+          allow list: if isOwner(userId);
+          allow create: if isOwner(userId) && isValidId(messageId) && isValidMessage(request.resource.data);
+        }
+      }
+    }
+  }
+}

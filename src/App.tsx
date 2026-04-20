@@ -10,7 +10,6 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from 'recharts';
 import { analyzeSkillGap, SkillGapAnalysis, aiChat } from './services/geminiService';
 import { cn } from './lib/utils';
-import Markdown from 'react-markdown';
 import { auth, db, googleProvider, signInWithPopup, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, doc, getDoc, setDoc, updateDoc, collection, query, getDocs, onSnapshot, addDoc, serverTimestamp, orderBy, limit, Timestamp, handleFirestoreError, FirebaseUser } from './lib/firebase';
 
 // --- Types ---
@@ -1141,7 +1140,7 @@ const ChatAssistant = ({ user }: { user: UserData }) => {
         setMessages(msgs);
         if (msgs.length === 0) {
           // Initial greeting
-          addMessage('model', `Hi **${user.name}**! I'm your **SkillGap AI Advisor**. How can I help you prepare for your next step as a **${user.target_role || 'professional'}**?`);
+          addMessage('model', `Hi ${user.name}! I'm your SkillGap AI Advisor. How can I help you prepare for your next step as a ${user.target_role || 'professional'}?`);
         }
       });
       return () => unsubscribe();
@@ -1236,12 +1235,12 @@ const ChatAssistant = ({ user }: { user: UserData }) => {
                   )}
                 >
                   <div className={cn(
-                    "px-4 py-2.5 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap",
+                    "px-4 py-2.5 rounded-2xl text-sm leading-relaxed",
                     msg.role === 'user' 
                       ? "bg-indigo-600 text-white rounded-tr-none" 
-                      : "bg-zinc-100 text-zinc-900 rounded-tl-none prose prose-sm prose-zinc max-w-none prose-p:leading-relaxed prose-strong:text-zinc-900 prose-strong:font-black prose-ul:my-2 prose-li:my-0.5"
+                      : "bg-zinc-100 text-zinc-900 rounded-tl-none"
                   )}>
-                    <Markdown>{msg.content}</Markdown>
+                    {msg.content}
                   </div>
                   <span className="text-[10px] text-zinc-400 mt-1 px-1 font-medium italic">
                     {msg.timestamp ? (msg.timestamp as Timestamp).toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Just now'}

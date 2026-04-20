@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from 'recharts';
 import { analyzeSkillGap, SkillGapAnalysis, aiChat } from './services/geminiService';
 import { cn } from './lib/utils';
+import Markdown from 'react-markdown';
 import { auth, db, googleProvider, signInWithPopup, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, doc, getDoc, setDoc, updateDoc, collection, query, getDocs, onSnapshot, addDoc, serverTimestamp, orderBy, limit, Timestamp, handleFirestoreError, FirebaseUser } from './lib/firebase';
 
 // --- Types ---
